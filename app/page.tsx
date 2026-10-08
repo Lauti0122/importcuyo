@@ -1,4 +1,4 @@
-import { Catalog } from "@/components/site/Catalog";
+import { CategoryTiles, Featured } from "@/components/site/Catalog";
 import { About, Banners, Footer, Header, Hero, Steps, Strip, WhatsAppFloat } from "@/components/site/Sections";
 import { getDollar } from "@/lib/dollar";
 import { getProducts, getSite } from "@/lib/store";
@@ -8,17 +8,15 @@ export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const [site, products, dollar] = await Promise.all([getSite(), getProducts(), getDollar()]);
+  const visible = products.filter((p) => p.colors.length && p.variants.length);
   return (
     <>
       <Header site={site} />
       <Hero site={site} />
       <Strip items={site.strip} />
       <Banners site={site} />
-      <Catalog
-        products={products.filter((p) => p.colors.length && p.variants.length)}
-        contact={site.contact}
-        usdRate={site.shop.usdRate || dollar?.sell || 0}
-      />
+      <CategoryTiles products={visible} />
+      <Featured products={visible} contact={site.contact} usdRate={site.shop.usdRate || dollar?.sell || 0} />
       <Steps site={site} />
       <About site={site} />
       <Footer site={site} />

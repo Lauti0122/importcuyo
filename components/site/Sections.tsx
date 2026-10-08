@@ -33,7 +33,7 @@ export async function Header({ site }: { site: Site }) {
           </p>
         )}
         <nav className="nav-links">
-          <Link href="/#catalogo">Catálogo</Link>
+          <Link href="/catalogo">Catálogo</Link>
           <Link href="/#como-comprar">Cómo comprar</Link>
           <Link href="/#quienes-somos">Quiénes somos</Link>
           <Link href="/#contacto">Contacto</Link>
@@ -78,9 +78,9 @@ export function Hero({ site }: { site: Site }) {
           <h1>{hero.tagline || brand.name}</h1>
           {hero.text && <p className="hero-desc">{hero.text}</p>}
           <div className="hero-cta">
-            <a href="#catalogo" className="btn btn-primary">
+            <Link href="/catalogo" className="btn btn-primary">
               Ver catálogo
-            </a>
+            </Link>
             {contact.whatsapp && (
               <a href={contactUrl(contact, generalMessage(site)) ?? undefined} {...external} className="btn btn-outline">
                 <WhatsAppIcon />
@@ -333,7 +333,7 @@ export function Footer({ site }: { site: Site }) {
 
           <div className="footer-col">
             <h4>Catálogo</h4>
-            <Link href="/#catalogo">Ver todos los productos</Link>
+            <Link href="/catalogo">Ver todos los productos</Link>
             <Link href="/#como-comprar">Cómo comprar</Link>
             <Link href="/#top">Volver arriba</Link>
           </div>

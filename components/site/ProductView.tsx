@@ -72,8 +72,10 @@ export function ProductView({ product: p, contact, usdRate }: { product: Product
 
         <Price variant={variant} usdRate={usdRate} detailed />
 
-        <p className="product-label">Color</p>
-        <div className="color-row">
+        <p className="product-label" hidden={p.colors.length === 1 && color.name === "Único"}>
+          Color
+        </p>
+        <div className="color-row" hidden={p.colors.length === 1 && color.name === "Único"}>
           {p.colors.map((c, i) => (
             <button
               key={c.name}

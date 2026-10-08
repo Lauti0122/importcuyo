@@ -29,7 +29,7 @@ export default async function ProductPage({ params }: PageProps<"/producto/[id]"
       <Header site={site} />
       <main className="product-section">
         <div className="wrap">
-          <Link href="/#catalogo" className="back-link">
+          <Link href="/catalogo" className="back-link">
             <ChevronLeft aria-hidden />
             Volver al catálogo
           </Link>

@@ -23,7 +23,7 @@ Sin `.env.local` el sitio igual levanta, con los textos y los productos de muest
 
 1. Crear un proyecto en Supabase.
 2. En el SQL Editor, correr `supabase/schema.sql` (tablas, permisos y bucket de imágenes).
-3. Opcional: correr `supabase/seed.sql` para arrancar con los productos de muestra.
+3. Correr `supabase/catalogo.sql` para cargar el catálogo inicial (247 productos; sus fotos ya están en el bucket `media`).
 4. Dar acceso al panel (más abajo).
 
 ## Qué se edita desde el panel

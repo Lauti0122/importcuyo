@@ -5,7 +5,7 @@ export default function NotFound() {
     <main className="not-found">
       <h1>No encontramos esa página</h1>
       <p>Puede que el producto ya no esté disponible.</p>
-      <Link href="/#catalogo" className="btn">
+      <Link href="/catalogo" className="btn">
         Ver el catálogo
       </Link>
     </main>

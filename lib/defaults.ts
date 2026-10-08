@@ -63,7 +63,7 @@ export const DEFAULT_SITE: Site = {
       title: "3 cuotas sin interés",
       text: "Miércoles y sábados, con tarjeta de crédito.",
       buttonLabel: "Ver catálogo",
-      link: "#catalogo",
+      link: "/catalogo",
       active: true,
     },
     {

@@ -25,11 +25,47 @@ const categoryIcon = (name: string) => CATEGORY_ICONS.find(([pattern]) => patter
 /** Para buscar sin que importen mayúsculas ni acentos. */
 const plain = (text: string) => text.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
 
-export function Catalog({ products, contact, usdRate }: { products: Product[]; contact: Site["contact"]; usdRate: number }) {
-  const [category, setCategory] = useState(ALL);
-  const [sort, setSort] = useState("default");
-  const [brand, setBrand] = useState("");
-  const [query, setQuery] = useState("");
+export type CatalogFilters = { category: string; brand: string; query: string; sort: string };
+
+const PAGE_SIZE = 24;
+const SORTS = ["default", "sale", "asc", "desc"];
+
+/** Los filtros como parámetros de la dirección, para poder compartir el link de una búsqueda. */
+function filtersToSearch({ category, brand, query, sort }: CatalogFilters) {
+  const params = new URLSearchParams();
+  if (category !== ALL) params.set("categoria", category);
+  if (brand) params.set("marca", brand);
+  if (query.trim()) params.set("buscar", query.trim());
+  if (sort !== "default") params.set("orden", sort);
+  const text = params.toString();
+  return text ? `?${text}` : "";
+}
+
+/** Catálogo completo: categorías, buscador, marca, orden y carga de a tandas. */
+export function Catalog({
+  products,
+  contact,
+  usdRate,
+  initial,
+}: {
+  products: Product[];
+  contact: Site["contact"];
+  usdRate: number;
+  initial?: Partial<CatalogFilters>;
+}) {
+  const [category, setCategory] = useState(initial?.category || ALL);
+  const [sort, setSort] = useState(initial?.sort && SORTS.includes(initial.sort) ? initial.sort : "default");
+  const [brand, setBrand] = useState(initial?.brand ?? "");
+  const [query, setQuery] = useState(initial?.query ?? "");
+  // Las tandas extra valen solo para los filtros con los que se pidieron: al cambiar un filtro se vuelve a la primera.
+  const [more, setMore] = useState({ key: "", pages: 0 });
+  const search = filtersToSearch({ category, brand, query, sort });
+  const shown = PAGE_SIZE * (1 + (more.key === search ? more.pages : 0));
+
+  // La búsqueda queda en la dirección para poder compartirla.
+  useEffect(() => {
+    window.history.replaceState(null, "", `${window.location.pathname}${search}`);
+  }, [search]);
 
   const chips = useMemo(() => {
     const categories = [...new Set(products.map((p) => p.category))].sort((a, b) => a.localeCompare(b, "es"));
@@ -47,34 +83,23 @@ export function Catalog({ products, contact, usdRate }: { products: Product[]; c
     ];
   }, [products]);
 
-  // Una tarjeta por categoría, con la foto del primer producto que tenga una.
-  const tiles = useMemo(
-    () =>
-      chips
-        .filter((chip) => ![ALL, NEW, SALE].includes(chip.name))
-        .map((chip) => ({
-          ...chip,
-          image: products.filter((p) => p.category === chip.name).flatMap((p) => p.colors.flatMap((c) => c.images))[0] ?? null,
-        })),
-    [chips, products],
-  );
+  const inCategory = useMemo(() => {
+    if (category === NEW) return products.filter((p) => p.isNew);
+    if (category === SALE) return products.filter(onSale);
+    if (category !== ALL) return products.filter((p) => p.category === category);
+    return products;
+  }, [products, category]);
 
-  const openCategory = (name: string) => {
-    setCategory(name);
-    document.getElementById("catalogo")?.scrollIntoView({ behavior: "smooth" });
-  };
-
+  // Solo las marcas que hay dentro de la categoría elegida.
   const brands = useMemo(
-    () => [...new Set(products.map((p) => p.brand).filter(Boolean))].sort((a, b) => a.localeCompare(b, "es")),
-    [products],
+    () => [...new Set(inCategory.map((p) => p.brand).filter(Boolean))].sort((a, b) => a.localeCompare(b, "es")),
+    [inCategory],
   );
+  const activeBrand = brands.includes(brand) ? brand : "";
 
   const items = useMemo(() => {
-    let list = products;
-    if (category === NEW) list = list.filter((p) => p.isNew);
-    else if (category === SALE) list = list.filter(onSale);
-    else if (category !== ALL) list = list.filter((p) => p.category === category);
-    if (brand) list = list.filter((p) => p.brand === brand);
+    let list = inCategory;
+    if (activeBrand) list = list.filter((p) => p.brand === activeBrand);
     const words = plain(query).split(/\s+/).filter(Boolean);
     if (words.length) {
       list = list.filter((p) => {
@@ -87,48 +112,27 @@ export function Catalog({ products, contact, usdRate }: { products: Product[]; c
     if (sort === "asc") list.sort((a, b) => fromPrice(a) - fromPrice(b));
     if (sort === "desc") list.sort((a, b) => fromPrice(b) - fromPrice(a));
     return list;
-  }, [products, category, brand, query, sort]);
+  }, [inCategory, activeBrand, query, sort]);
+
+  const page = items.slice(0, shown);
+  const filtered = category !== ALL || Boolean(activeBrand) || Boolean(query.trim());
 
   return (
     // El contenedor limita la barra de categorías fija al tramo del catálogo.
     <div className="catalog-wrap">
-      {tiles.length > 1 && (
-        <section className="cat-tiles" aria-label="Categorías">
-          <div className="wrap">
-            <h2>Qué importamos</h2>
-            <div className="cat-tiles-grid">
-              {tiles.map((tile) => {
-                const Icon = categoryIcon(tile.name);
-                return (
-                  <button key={tile.name} className="cat-tile" onClick={() => openCategory(tile.name)}>
-                    <span className="cat-tile-media">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      {tile.image ? <img src={tile.image} alt="" loading="lazy" /> : <Icon strokeWidth={1.2} aria-hidden />}
-                    </span>
-                    <span className="cat-tile-name">{tile.name}</span>
-                    <span className="cat-tile-count">
-                      {tile.count} {tile.count === 1 ? "producto" : "productos"}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      )}
       <CategoryNav chips={chips} active={category} onSelect={setCategory} />
 
       <main className="catalog-section" id="catalogo">
         <div className="wrap">
           <div className="catalog-head">
-            <h2>{category === ALL ? "Todo el catálogo" : category}</h2>
+            <h1>{category === ALL ? "Catálogo" : category}</h1>
             <div className="catalog-tools">
               <label className="search">
                 <Search aria-hidden />
                 <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Buscar un producto" aria-label="Buscar un producto" />
               </label>
               {brands.length > 1 && (
-                <select value={brand} onChange={(e) => setBrand(e.target.value)} aria-label="Filtrar por marca">
+                <select value={activeBrand} onChange={(e) => setBrand(e.target.value)} aria-label="Filtrar por marca">
                   <option value="">Marca: todas</option>
                   {brands.map((b) => (
                     <option key={b} value={b}>
@@ -150,18 +154,91 @@ export function Catalog({ products, contact, usdRate }: { products: Product[]; c
           </div>
 
           <div className="grid">
-            {items.length ? (
-              items.map((p) => <Card key={p.id} product={p} contact={contact} usdRate={usdRate} />)
+            {page.length ? (
+              page.map((p) => <Card key={p.id} product={p} contact={contact} usdRate={usdRate} />)
             ) : (
               <div className="empty-state">
                 <h3>No hay productos con ese filtro</h3>
                 <p>Probá con otra categoría, otra marca u otra búsqueda.</p>
+                {filtered && (
+                  <button className="btn btn-dark" onClick={() => (setCategory(ALL), setBrand(""), setQuery(""))}>
+                    Ver todo el catálogo
+                  </button>
+                )}
               </div>
             )}
           </div>
+
+          {items.length > shown && (
+            <div className="load-more">
+              <p>
+                Viendo {page.length} de {items.length} productos
+              </p>
+              <button className="btn btn-dark" onClick={() => setMore((prev) => ({ key: search, pages: (prev.key === search ? prev.pages : 0) + 1 }))}>
+                Ver más productos
+              </button>
+            </div>
+          )}
         </div>
       </main>
     </div>
+  );
+}
+
+/** Accesos por categoría de la portada: una tarjeta por cada una, con la foto de su primer producto. */
+export function CategoryTiles({ products }: { products: Product[] }) {
+  const tiles = [...new Set(products.map((p) => p.category))]
+    .sort((a, b) => a.localeCompare(b, "es"))
+    .map((name) => {
+      const list = products.filter((p) => p.category === name);
+      return { name, count: list.length, image: list.flatMap((p) => p.colors.flatMap((c) => c.images))[0] ?? null };
+    });
+  if (tiles.length < 2) return null;
+  return (
+    <section className="cat-tiles" aria-label="Categorías">
+      <div className="wrap">
+        <h2>Qué importamos</h2>
+        <div className="cat-tiles-grid">
+          {tiles.map((tile) => {
+            const Icon = categoryIcon(tile.name);
+            return (
+              <Link key={tile.name} className="cat-tile" href={`/catalogo${filtersToSearch({ category: tile.name, brand: "", query: "", sort: "default" })}`}>
+                <span className="cat-tile-media">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {tile.image ? <img src={tile.image} alt="" loading="lazy" /> : <Icon strokeWidth={1.2} aria-hidden />}
+                </span>
+                <span className="cat-tile-name">{tile.name}</span>
+                <span className="cat-tile-count">
+                  {tile.count} {tile.count === 1 ? "producto" : "productos"}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** Los primeros productos del catálogo en la portada, con el acceso al catálogo completo. */
+export function Featured({ products, contact, usdRate, limit = 8 }: { products: Product[]; contact: Site["contact"]; usdRate: number; limit?: number }) {
+  if (!products.length) return null;
+  return (
+    <section className="featured" id="catalogo">
+      <div className="wrap">
+        <div className="catalog-head">
+          <h2>Destacados</h2>
+          <Link className="btn btn-dark" href="/catalogo">
+            Ver los {products.length} productos
+          </Link>
+        </div>
+        <div className="grid">
+          {products.slice(0, limit).map((p) => (
+            <Card key={p.id} product={p} contact={contact} usdRate={usdRate} />
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -319,8 +396,8 @@ function Card({ product: p, contact, usdRate }: { product: Product; contact: Sit
         </h3>
         {p.specs.length > 0 && <p className="card-specs">{p.specs.slice(0, 3).join(" · ")}</p>}
 
-        {/* La fila de color va siempre, aunque haya uno solo: así los precios quedan a la misma altura en todas las tarjetas. */}
-        <div className="color-row">
+        {/* Los productos sin variantes de color se cargan con un único color "Único": ahí la fila no aporta nada. */}
+        <div className="color-row" hidden={p.colors.length === 1 && color.name === "Único"}>
           {p.colors.map((c, i) => (
             <button
               key={c.name}

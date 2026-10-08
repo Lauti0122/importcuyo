@@ -622,7 +622,7 @@ function SlidesPanel({ slides, onChange }: { slides: HeroSlide[]; onChange: (s: 
 function BannersTab({ banners, onChange }: { banners: Banner[]; onChange: (b: Banner[]) => void }) {
   const setBanner = (index: number, value: Partial<Banner>) => onChange(banners.map((b, i) => (i === index ? { ...b, ...value } : b)));
   const add = () =>
-    onChange([...banners, { id: crypto.randomUUID(), image: null, icon: "", cards: false, title: "", text: "", buttonLabel: "Ver catálogo", link: "#catalogo", active: true }]);
+    onChange([...banners, { id: crypto.randomUUID(), image: null, icon: "", cards: false, title: "", text: "", buttonLabel: "Ver catálogo", link: "/catalogo", active: true }]);
 
   return (
     <section>
@@ -690,8 +690,8 @@ function BannersTab({ banners, onChange }: { banners: Banner[]; onChange: (b: Ba
             <Field label="Texto del botón">
               <Text value={b.buttonLabel} onChange={(buttonLabel) => setBanner(i, { buttonLabel })} />
             </Field>
-            <Field label="Link" hint="#catalogo lleva al catálogo y whatsapp abre la consulta por WhatsApp. También puede ser un link completo (https://…).">
-              <Text value={b.link} onChange={(link) => setBanner(i, { link })} placeholder="#catalogo" />
+            <Field label="Link" hint="/catalogo lleva al catálogo y whatsapp abre la consulta por WhatsApp. También puede ser un link completo (https://…).">
+              <Text value={b.link} onChange={(link) => setBanner(i, { link })} placeholder="/catalogo" />
             </Field>
           </div>
         </div>
