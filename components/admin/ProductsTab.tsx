@@ -229,7 +229,8 @@ function ProductRow({ product: p, children }: { product: Product; children: Reac
       <button ref={setActivatorNodeRef} className="drag-handle" aria-label={`Mover ${p.name}`} title="Arrastrá para cambiar el orden" {...attributes} {...listeners}>
         <GripVertical />
       </button>
-      <div className="product-thumb" style={{ background: p.colors[0]?.hex }}>
+      {/* El tono del color solo hace de relleno cuando el producto todavía no tiene foto. */}
+      <div className="row-thumb" style={cover(p) ? undefined : { background: p.colors[0]?.hex }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         {cover(p) && <img src={cover(p)} alt="" />}
       </div>

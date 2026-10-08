@@ -114,9 +114,10 @@ p.field-error { margin-bottom: 10px; }
 }
 .drag-handle:hover { background: var(--a-soft); color: var(--a-text); }
 .is-dragging .drag-handle { cursor: grabbing; }
-.product-list li.is-hidden .product-thumb, .product-list li.is-hidden .product-main { opacity: .45; }
-.product-thumb { width: 56px; height: 56px; border-radius: 8px; overflow: hidden; flex: 0 0 auto; }
-.product-thumb img { width: 100%; height: 100%; object-fit: contain; background: #F4F6FA; padding: 4px; }
+.product-list li.is-hidden .row-thumb, .product-list li.is-hidden .product-main { opacity: .45; }
+/* Nombre propio: .product-thumb es de la tienda y trae opacidad y fondo que acá no van. */
+.row-thumb { width: 56px; height: 56px; border-radius: 8px; overflow: hidden; flex: 0 0 auto; background: #F4F6FA; border: 1px solid var(--a-line); }
+.row-thumb img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
 .product-main { flex: 1 1 200px; min-width: 0; display: flex; flex-direction: column; }
 .product-main strong { font-weight: 500; }
 .product-main span, .product-price span { font-size: 13px; color: var(--a-muted); }

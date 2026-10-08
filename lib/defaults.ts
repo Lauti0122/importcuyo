@@ -23,11 +23,11 @@ export const DEFAULT_SITE: Site = {
   brand: {
     name: "Import Cuyo",
     description:
-      "Import Cuyo. Productos importados en Mendoza: tecnología, consolas, audio, hogar y más, con precios en dólares.",
+      "Import Cuyo. Productos importados con entregas a todo el país: tecnología, consolas, audio, hogar y más, con precios en dólares.",
   },
   hero: {
     eyebrow: "",
-    tagline: "Lo que buscás, importado directo a Mendoza.",
+    tagline: "Importamos lo que buscás.",
     text: "Tecnología, consolas, audio, hogar y mucho más. Trabajamos por encargue: elegís el producto y lo traemos, original y sellado.",
     image: null,
     overlay: 55,
@@ -35,7 +35,7 @@ export const DEFAULT_SITE: Site = {
   },
   strip: [
     "Productos originales y sellados",
-    "Entregas en Mendoza",
+    "Entregas a todo el país",
     "Trabajamos por encargue",
   ],
   steps: [
@@ -88,7 +88,7 @@ export const DEFAULT_SITE: Site = {
     hours: "",
   },
   footer: {
-    about: "Importamos productos de todo tipo, sobre todo tecnología, y los entregamos en Mendoza. Originales, con atención personalizada y precios claros.",
+    about: "Importamos productos de todo tipo, sobre todo tecnología, con entregas a todo el país. Originales, con atención personalizada y precios claros.",
     note: "Mendoza, Argentina",
     payments: ["Efectivo", "Transferencia", "Pesos argentinos", "Dólares"],
   },
