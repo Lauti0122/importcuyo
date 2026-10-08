@@ -90,6 +90,8 @@ export type ProductColor = {
   name: string;
   hex: string;
   images: string[];
+  /** Dólares que este color suma a todos los precios del producto (0 = mismo precio). */
+  extra: number;
 };
 
 export type Product = {

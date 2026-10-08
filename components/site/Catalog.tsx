@@ -3,7 +3,7 @@
 import { ChevronLeft, ChevronRight, CreditCard, Gamepad2, Headphones, House, Images, Laptop, Package, Search, Smartphone, Tablet, Watch, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ars, contactUrl, finalPrice, fromPrice, inkOn, installment, onSale, productMessage, toArs, usd } from "@/lib/format";
+import { ars, contactUrl, finalPrice, fromPrice, inColor, inkOn, installment, onSale, productMessage, toArs, usd } from "@/lib/format";
 import type { Product, ProductVariant, Site } from "@/lib/types";
 
 const ALL = "Todo";
@@ -409,7 +409,10 @@ function Card({ product: p, contact, usdRate }: { product: Product; contact: Sit
               onClick={() => setColorIndex(i)}
             />
           ))}
-          <span className="color-name">{color.name}</span>
+          <span className="color-name">
+            {color.name}
+            {color.extra > 0 && <small> +{usd(color.extra)}</small>}
+          </span>
         </div>
 
         {(p.variants.length > 1 || variant.label) && (
@@ -428,7 +431,7 @@ function Card({ product: p, contact, usdRate }: { product: Product; contact: Sit
           </div>
         )}
 
-        <Price variant={variant} usdRate={usdRate} />
+        <Price variant={inColor(variant, color)} usdRate={usdRate} />
 
         {consult && (
           <a href={consult} target="_blank" rel="noopener" className="consulta-btn">

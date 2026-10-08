@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import type { HeroSlide, Product, ProductVariant, Site } from "./types";
+import type { HeroSlide, Product, ProductColor, ProductVariant, Site } from "./types";
 
 const number = (n: number) => n.toLocaleString("es-AR", { maximumFractionDigits: 0 });
 
@@ -12,13 +12,21 @@ export const toArs = (price: number, usdRate: number) => Math.round((price * usd
 /** Valor de cada cuota, redondeado a cien pesos. */
 export const installment = (price: number, usdRate: number, count: number) => Math.round((price * usdRate) / count / 100) * 100;
 
+/** Los precios de una versión en un color: el recargo del color se suma a cada precio cargado. */
+export function inColor(v: ProductVariant, color: ProductColor): ProductVariant {
+  const extra = color.extra || 0;
+  if (!extra) return v;
+  const plus = (price: number | null) => (price ? price + extra : null);
+  return { ...v, price: v.price + extra, priceSale: plus(v.priceSale), priceCard: plus(v.priceCard), priceCard12: plus(v.priceCard12) };
+}
+
 /** Lo que se paga hoy en efectivo por una versión: el precio de oferta si hay, si no el normal. */
 export const finalPrice = (v: ProductVariant) => v.priceSale ?? v.price;
 
 export const onSale = (p: Product) => p.variants.some((v) => v.priceSale);
 
 /** El precio más bajo del producto, para ordenar y para el "desde" de la tarjeta. */
-export const fromPrice = (p: Product) => Math.min(...p.variants.map(finalPrice));
+export const fromPrice = (p: Product) => Math.min(...p.variants.map(finalPrice)) + Math.min(...p.colors.map((c) => c.extra || 0));
 
 /** Texto oscuro o claro según el fondo, para el monograma de las muestras sin foto. */
 export function inkOn(hex: string) {

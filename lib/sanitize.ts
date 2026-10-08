@@ -148,6 +148,7 @@ export function cleanProduct(input: unknown): Product {
         name: str(c.name, 30) || "Único",
         hex: HEX.test(hex) ? hex : "#1F2022",
         images: list(c.images).map(image).filter((x): x is string => x !== null).slice(0, 12),
+        extra: num(c.extra, 0, 100000),
       };
     }),
     variants: list(p.variants)

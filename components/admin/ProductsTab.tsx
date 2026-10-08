@@ -11,7 +11,7 @@ import { ars, fromPrice, onSale, toArs, usd } from "@/lib/format";
 import type { ColorPreset, Product, ProductColor, ProductVariant } from "@/lib/types";
 import { ColorInput, Field, Text, UploadButton } from "./ui";
 
-const newColor = (): ProductColor => ({ name: "", hex: "#1F2022", images: [] });
+const newColor = (): ProductColor => ({ name: "", hex: "#1F2022", images: [], extra: 0 });
 const newVariant = (): ProductVariant => ({ label: "", price: 0, priceSale: null, priceCard: null, priceCard12: null, inStock: true });
 
 const newProduct = (): Product => ({
@@ -464,6 +464,17 @@ function ProductEditor({
               <ColorInput label="Tono" value={color.hex} onChange={(hex) => setColor(ci, { hex })} />
               <span className="field-hint">Es el circulito que se ve en la tarjeta del producto. Podés elegirlo o escribir el código.</span>
             </div>
+            <Field
+              label="Recargo de este color US$ (opcional)"
+              hint="Si este color sale más caro, poné cuántos dólares más. Se suma a todos los precios del producto: efectivo, oferta y tarjeta."
+            >
+              <Text value={color.extra ? String(color.extra) : ""} onChange={(v) => setColor(ci, { extra: price(v) })} inputMode="numeric" placeholder="0" />
+            </Field>
+            {color.extra > 0 && p.variants[0]?.price > 0 && (
+              <p className="field-hint">
+                En {color.name.trim() || "este color"}, {p.variants[0].label || "el producto"} queda en {usd(p.variants[0].price + color.extra)} en efectivo.
+              </p>
+            )}
           </div>
           <div className="swatches" role="group" aria-label="Colores guardados">
             {colorPresets.map((preset, i) => {

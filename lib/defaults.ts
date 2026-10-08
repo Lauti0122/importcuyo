@@ -110,7 +110,7 @@ export const DEFAULT_SITE: Site = {
   theme: BRAND_THEME,
 };
 
-const color = (name: string, hex: string): ProductColor => ({ name, hex, images: [] });
+const color = (name: string, hex: string): ProductColor => ({ name, hex, images: [], extra: 0 });
 const variant = (label: string, price: number, priceSale: number | null = null): ProductVariant => ({ label, price, priceSale, priceCard: null, priceCard12: null, inStock: true });
 
 function sample(

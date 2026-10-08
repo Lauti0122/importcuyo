@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { contactUrl, inkOn, onSale, productMessage } from "@/lib/format";
+import { contactUrl, inColor, inkOn, onSale, productMessage, usd } from "@/lib/format";
 import type { Product, Site } from "@/lib/types";
 import { Price } from "./Catalog";
 import { Lightbox } from "./Lightbox";
@@ -70,7 +70,7 @@ export function ProductView({ product: p, contact, usdRate }: { product: Product
           </ul>
         )}
 
-        <Price variant={variant} usdRate={usdRate} detailed />
+        <Price variant={inColor(variant, color)} usdRate={usdRate} detailed />
 
         <p className="product-label" hidden={p.colors.length === 1 && color.name === "Único"}>
           Color
@@ -90,7 +90,10 @@ export function ProductView({ product: p, contact, usdRate }: { product: Product
               }}
             />
           ))}
-          <span className="color-name">{color.name}</span>
+          <span className="color-name">
+            {color.name}
+            {color.extra > 0 && <small> +{usd(color.extra)}</small>}
+          </span>
         </div>
 
         {(p.variants.length > 1 || variant.label) && (
